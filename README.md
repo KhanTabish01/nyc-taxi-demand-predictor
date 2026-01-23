@@ -54,7 +54,7 @@ NYC TLC (Parquet) → download.py → data/raw/
 ### Setup
 ```bash
 # Clone repo
-git clone https://github.com/YOUR_USERNAME/mobility-forecaster.git
+git clone https://github.com/KhanTabish01/mobility-forecaster.git
 cd mobility-forecaster
 
 # Create virtual environment
@@ -135,5 +135,5 @@ MIT License - see [LICENSE](LICENSE) for details.
 ## 🙋 Contact
 
 Built as a production-style ML system demonstrating end-to-end pipeline development.  
-[LinkedIn](https://www.linkedin.com/in/tabish-khan-864457219/) | [Portfolio](#) | [Email](mailto:tkhan1051@gmail.com)
+[LinkedIn](https://www.linkedin.com/in/tabish-khan-864457219/) | [Email](mailto:tkhan1051@gmail.com)
 
