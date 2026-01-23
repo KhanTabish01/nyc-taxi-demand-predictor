@@ -1,0 +1,10 @@
+loguru
+mkdocs
+pip
+python-dotenv
+ruff
+tqdm
+typer
+pandas>=2
+pyarrow
+-e .
