@@ -3,9 +3,11 @@
 > Predicts hourly taxi demand by NYC zone to optimize fleet allocation and reduce driver idle time.
 
 [![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/)
-[![CI](https://github.com/KhanTabish01/mobility-forecaster/actions/workflows/ci.yml/badge.svg)](https://github.com/KhanTabish01/mobility-forecaster/actions/workflows/ci.yml)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-00a393.svg?logo=fastapi)](https://fastapi.tiangolo.com/)
+[![Docker](https://img.shields.io/badge/docker-available-blue.svg?logo=docker)](https://www.docker.com/)
+[![CI](https://github.com/KhanTabish01/nyc-taxi-demand-predictor/actions/workflows/ci.yml/badge.svg)](https://github.com/KhanTabish01/nyc-taxi-demand-predictor/actions/workflows/ci.yml)
+[![SQLite](https://img.shields.io/badge/sqlite-%2307405e.svg?style=flat&logo=sqlite&logoColor=white)](https://www.sqlite.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-
 ---
 
 ## 🎯 Problem Statement
