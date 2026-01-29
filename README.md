@@ -3,6 +3,7 @@
 > Predicts hourly taxi demand by NYC zone to optimize fleet allocation and reduce driver idle time.
 
 [![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/)
+[![CI](https://github.com/KhanTabish01/mobility-forecaster/actions/workflows/ci.yml/badge.svg)](https://github.com/KhanTabish01/mobility-forecaster/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
@@ -21,8 +22,9 @@ Predict the number of taxi pickups per NYC zone for the next hour using historic
 
 - **Dataset:** 41M NYC Yellow Taxi trips (2024)
 - **Coverage:** 12 months, 265 zones, ~3.4M trips/month average
-- **Pipeline Status:** ✅ Data ingestion complete
-- **Model:** In development (XGBoost regression)
+- **Pipeline Status:** ✅ End-to-end pipeline complete
+- **Model:** XGBoost regression (Test MAE ≈ 0.84)
+- **API:** FastAPI service with `/health`, `/info`, `/predict`
 - **Target Metric:** MAE (Mean Absolute Error) on hourly zone-level pickups
 
 ---
@@ -73,11 +75,48 @@ python urban_mobility_forecaster/download.py
 # Ingest into SQLite (~41M rows)
 python urban_mobility_forecaster/ingest.py
 
-# Train model (coming soon)
-# python urban_mobility_forecaster/modeling/train.py
+# Train model
+python urban_mobility_forecaster/train.py
 
-# Start API (coming soon)
-# uvicorn urban_mobility_forecaster.api:app --reload
+# Start API
+python -m uvicorn urban_mobility_forecaster.api:app --reload
+```
+
+### Run API Locally
+```bash
+# Start API
+python -m uvicorn urban_mobility_forecaster.api:app --host 0.0.0.0 --port 8000
+
+# Health check
+curl http://localhost:8000/health
+```
+
+### Run with Docker
+```bash
+# Build image
+docker build -t nyc-taxi-predictor:latest .
+
+# Run container
+docker run -d -p 8000:8000 --name taxi-api nyc-taxi-predictor:latest
+
+# Health check
+curl http://localhost:8000/health
+```
+
+### Sample Prediction
+```bash
+curl -X POST http://localhost:8000/predict -H "Content-Type: application/json" -d '{
+    "hour_sin": 0.5, "hour_cos": 0.866, "dow_sin": 0.0, "dow_cos": 1.0,
+    "month_sin": 0.0, "month_cos": 1.0, "lag_1h": 15.0, "lag_24h": 20.0,
+    "lag_168h": 18.0, "diff_24h": -5.0, "rolling_7d_mean": 17.5,
+    "rolling_7d_std": 3.2, "rolling_14d_mean": 16.8, "rolling_7d_cv": 0.18,
+    "zone_mean_demand": 22.0, "zone_rank": 25, "zone_is_top50": 1
+}'
+```
+
+### Smoke Test (PowerShell)
+```powershell
+./scripts/smoke_test_api.ps1
 ```
 
 ---
@@ -88,15 +127,16 @@ python urban_mobility_forecaster/ingest.py
 ├── urban_mobility_forecaster/   # Source code
 │   ├── download.py              # Data acquisition from NYC TLC
 │   ├── ingest.py                # ETL pipeline to SQLite
-│   ├── modeling/
-│   │   ├── train.py             # Model training pipeline
-│   │   └── predict.py           # Inference logic
+│   ├── features.py              # Feature engineering utilities
+│   ├── train.py                 # Model training pipeline
 │   └── api.py                   # FastAPI service
+├── models/                      # Model artifacts (pkl + metadata)
 ├── data/                        # Data storage (gitignored)
 │   ├── raw/                     # Original Parquet files (~5GB)
-│   └── processed/               # SQLite database (~2GB)
+│   └── processed/               # Feature files + SQLite DB
 ├── notebooks/                   # EDA and experiments
 ├── docs/                        # Design decisions and documentation
+├── scripts/                     # Helper scripts (smoke tests)
 └── requirements.txt
 ```
 

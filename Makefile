@@ -40,6 +40,43 @@ format:
 	ruff format
 
 
+## Run tests
+.PHONY: test
+test:
+	pytest -q
+
+
+## Run API locally
+.PHONY: api
+api:
+	$(PYTHON_INTERPRETER) -m uvicorn urban_mobility_forecaster.api:app --host 0.0.0.0 --port 8000
+
+
+## Build Docker image
+.PHONY: docker-build
+docker-build:
+	docker build -t nyc-taxi-predictor:latest .
+
+
+## Run Docker container
+.PHONY: docker-run
+docker-run:
+	docker run -d -p 8000:8000 --name taxi-api nyc-taxi-predictor:latest
+
+
+## Stop and remove Docker container
+.PHONY: docker-stop
+docker-stop:
+	-docker stop taxi-api
+	-docker rm taxi-api
+
+
+## Smoke test API (PowerShell)
+.PHONY: smoke
+smoke:
+	pwsh -File ./scripts/smoke_test_api.ps1
+
+
 
 
 
