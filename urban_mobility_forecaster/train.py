@@ -8,11 +8,11 @@ and saves model artifacts.
 import json
 import pickle
 
-import pandas as pd
-import xgboost as xgb
 from loguru import logger
+import pandas as pd
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import typer
+import xgboost as xgb
 
 from urban_mobility_forecaster.config import (
     FEATURE_LIST_FILE,
