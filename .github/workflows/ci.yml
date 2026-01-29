@@ -25,6 +25,48 @@ jobs:
         run: |
           ruff check .
 
+      - name: Create dummy model artifacts
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import pickle
+          from pathlib import Path
+
+          from sklearn.dummy import DummyRegressor
+
+          models_dir = Path("models")
+          models_dir.mkdir(exist_ok=True)
+
+          # Train a minimal dummy model to satisfy API startup
+          X = [[0.0] * 17, [1.0] * 17]
+          y = [0.0, 1.0]
+          model = DummyRegressor(strategy="mean")
+          model.fit(X, y)
+
+          with open(models_dir / "xgboost_model.pkl", "wb") as f:
+            pickle.dump(model, f)
+
+          results = {
+            "model_type": "DummyRegressor",
+            "n_features": 17,
+            "features": [
+              "hour_sin", "hour_cos", "dow_sin", "dow_cos", "month_sin", "month_cos",
+              "lag_1h", "lag_24h", "lag_168h", "diff_24h",
+              "rolling_7d_mean", "rolling_7d_std", "rolling_14d_mean", "rolling_7d_cv",
+              "zone_mean_demand", "zone_rank", "zone_is_top50",
+            ],
+            "metrics": {"test": {"mae": 0.0}},
+          }
+          with open(models_dir / "results.json", "w") as f:
+            json.dump(results, f)
+          PY
+
+      - name: Start API server
+        run: |
+          python -m uvicorn urban_mobility_forecaster.api:app --host 127.0.0.1 --port 8000 &
+          sleep 5
+
       - name: Run tests
         run: |
           pytest -q
