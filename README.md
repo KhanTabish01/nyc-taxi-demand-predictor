@@ -42,8 +42,8 @@ NYC TLC (Parquet) → download.py → data/raw/
 **Tech Stack:**
 - **Data:** Pandas, Parquet, SQLite
 - **ML:** Scikit-Learn / XGBoost
-- **API:** FastAPI (Day 3)
-- **Deployment:** Docker (Day 3)
+- **API:** FastAPI
+- **Deployment:** Docker 
 
 ---
 
