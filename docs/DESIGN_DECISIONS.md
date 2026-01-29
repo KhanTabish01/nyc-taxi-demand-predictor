@@ -23,38 +23,30 @@ Document the why behind key choices so future you/interviewers can see the trade
 
 ---
 
-## Decision 2: Temporal Train/Val/Test Split (2026-01-26)
-**Decision:** Split by date (Jan-Oct train, Nov val, Dec test) NOT random shuffle.
+## Decision 3: Baseline Model Cascade Before XGBoost (2026-01-29)
+**Decision:** Build simple rule-based baselines (B1–B4) before training XGBoost to establish performance floor and prevent over-engineering.
 
 **Options Considered:**
-1. Random 80/10/10 split: Standard ML, but violates time-series assumption
-2. Temporal split: Respects causality, tests true forecasting
-3. K-fold time-series CV: More complex, but could be added later
+1. Skip baselines, go straight to XGBoost: Faster but no interpretability, risk over-fit
+2. Build baseline cascade: Understand signal hierarchy, set realistic benchmarks
+3. Use ensemble of baselines + XGBoost: More complex but potentially robust
 
-**Constraints:** Must prevent leakage (future data cannot touch training).
+**Constraints:** Time pressure (3-day MVP sprint); need to validate features matter before ML.
 
-**Rationale:** Time-series forecasting requires temporal order. Random split leaks future information into training set → overly optimistic metrics. Temporal split tests real scenario: "predict next month given history".
+**Rationale:** Baseline cascade revealed:
+- **B1 (Global Mean) → B2 (Hour-of-Day Mean):** 76.8% error reduction → hour-of-day is dominant signal
+- **B2 → B3 (24h-Lag):** Marginal 0.6% improvement on val, but 18.6% improvement on test → day-to-day persistence adds value in unseen data
+- **B3 → B4 (Rolling Avg):** Degradation (over-smoothing) → rolling windows hurt prediction
 
-**Change triggers:** If we have more data (>2 years), implement expanding window CV.
+**Benchmark Set:** XGBoost must beat test MAE **11.21** (B3 best test performance) to justify added complexity. This prevents gold-plating.
+
+**Change triggers:** If XGBoost fails to beat 11.21 MAE, return to hybrid model (B2/B3 as base features for meta-learner).
 
 ---
-
-## Decision 3: Sparse Zone Handling (2026-01-26, PENDING)
-**Decision:** TBD—drop zones with <50 trips/month OR train separate models?
-
-**Options Considered:**
-1. Drop sparse zones: Simple, focuses on high-demand areas
-2. Separate low-demand model: More complex, but improves minority coverage
-3. Impute zeros with group means: Middle ground, some bias
-
-**Constraints:** Sparsity is 52% (many zone-hours inactive). Need to handle during feature engineering.
-
-**Rationale:** Pareto principle—top 50 zones = 95% demand. Low-demand zones are noisy. Decision pending: Is business requirement to serve all zones or optimize for high-demand?
-
-**Change triggers:** If product requires 100% zone coverage, build option 2 or 3.
 
 ## Current assumptions (fill these in)
 - Data volume assumption: ~41M raw trips/year → hourly-zone aggregates (~300K records/month)
 - Target latency for inference: <100ms per prediction (single zone-hour)
 - Update cadence for new data: Daily (ingest previous day's trips, retrain weekly)
+- Baseline cascade results: B3 (24h-lag) achieves 11.21 MAE on test → XGBoost must beat this
 
